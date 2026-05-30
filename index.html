@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Clarkes in Sicily</title>
+  <meta name="apple-mobile-web-app-title" content="Sicily 25"/>
+  <link rel="apple-touch-icon" href="icon-192.png"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <link rel="manifest" href="manifest.json"/>
+  <meta name="theme-color" content="#1A3252"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+    /* ── COLORS ── warm Mediterranean palette */
+    :root{
+      --orange:#C85C2E;--orange-2:#A84520;
+      --navy:#1A3252;--sand:#E8B84B;
+      --bg:#F7F3EF;--card:#FFFFFF;--rule:#D1D5DB;--text:#111827;--muted:#4B5563;
+      --shadow:0px 4px 12px rgba(0,0,0,0.08);--radius:12px;--hdr:148px
+    }
+
+    html,body,#root{height:100%}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;line-height:1.5}
+
+    /* HEADER */
+    .app-header{position:fixed;top:0;left:0;right:0;z-index:100;background:var(--navy);padding:18px 24px 0;text-align:center}
+    .header-title{font-size:clamp(18px,4.5vw,28px);font-weight:700;color:#fff;letter-spacing:-.3px;line-height:1.1}
+    .header-dates{margin-top:3px;font-size:11px;font-weight:400;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.5)}
+    .header-route{margin-top:2px;font-size:13px;color:rgba(255,255,255,.65);letter-spacing:.3px}
+    .tab-bar{display:flex;margin-top:12px}
+    .tab-btn{flex:1;padding:10px 0;border:none;background:none;font-family:'Inter',sans-serif;font-size:12px;font-weight:500;color:rgba(255,255,255,.6);cursor:pointer;border-bottom:2px solid transparent;transition:all .18s}
+    .tab-btn.active{color:#fff;border-bottom-color:var(--sand)}
+    .tab-btn:hover:not(.active){color:rgba(255,255,255,.7)}
+
+    .tab-content{padding-top:calc(var(--hdr) + 2px);max-width:820px;margin:0 auto;padding-left:16px;padding-right:16px;padding-bottom:60px}
+    .sl{font-size:11px;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted);margin:24px 0 12px;display:flex;align-items:center;gap:10px}
+    .sl::after{content:'';flex:1;height:1px;background:var(--rule)}
+    .sl:first-child{margin-top:20px}
+
+    /* WEATHER CARDS */
+    .weather-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+    .weather-card{border:1px solid var(--rule);border-radius:var(--radius);padding:13px 15px;background:var(--card);border-left-width:3px;box-shadow:var(--shadow)}
+    .wc-zone{font-weight:600;font-size:13px}
+    .wc-dates{font-size:11px;color:var(--muted);margin:2px 0 5px}
+    .wc-desc{font-size:11px;color:var(--muted);line-height:1.5;margin-bottom:8px}
+    .wc-forecast{border-top:1px dashed var(--rule);padding-top:8px}
+    .wc-days{display:flex;gap:3px;overflow-x:auto;padding-bottom:2px}
+    .wc-day{flex:1;min-width:36px;text-align:center;background:var(--bg);border-radius:8px;padding:5px 2px}
+    .wc-day-label{font-size:10px;font-weight:600;color:var(--muted);margin-bottom:1px}
+    .wc-day-icon{font-size:13px;margin:2px 0}
+    .wc-day-hi{font-size:11px;font-weight:600}
+    .wc-day-lo{font-size:10px;color:var(--muted)}
+    .wc-day-rain{font-size:10px;color:#1d4ed8;margin-top:1px;font-weight:500}
+    .wc-pending{padding:6px 0 2px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+    .wc-avgs{font-size:12px;font-weight:600;color:var(--muted)}
+    .wc-avgs small{font-weight:300;font-size:10px;margin-left:2px}
+    .wc-eta{font-size:10px;background:var(--bg);border-radius:99px;padding:2px 8px;color:var(--muted);white-space:nowrap}
+    .wc-loading{font-size:11px;color:var(--muted);font-style:italic;padding:6px 0}
+    .wx-footer{display:flex;justify-content:space-between;align-items:center;margin-top:10px}
+    .wx-updated{font-size:11px;color:var(--muted);font-style:italic}
+    .refresh-btn{font-size:11px;font-family:'Inter',sans-serif;background:none;border:1px solid var(--rule);border-radius:99px;padding:3px 10px;color:var(--muted);cursor:pointer;transition:all .15s}
+    .refresh-btn:hover{border-color:var(--navy);color:var(--navy)}
+    .refresh-btn:disabled{opacity:.5;cursor:default}
+
+    /* DAY CARDS */
+    .day-card{background:var(--card);border:1px solid var(--rule);border-radius:var(--radius);margin-bottom:10px;overflow:hidden;box-shadow:var(--shadow)}
+    .day-header{display:flex;align-items:stretch;cursor:pointer;user-select:none}
+    .day-num{width:48px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:white;min-height:64px}
+    .day-header-body{flex:1;padding:11px 14px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+    .day-header-left{flex:1;min-width:0}
+    .day-date-label{font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
+    .day-title{font-size:14px;font-weight:600;color:var(--text);line-height:1.3}
+    .day-location{font-size:11px;color:var(--muted);margin-top:2px}
+    .day-header-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+    .day-wx{text-align:right}
+    .day-wx-icon{font-size:15px;line-height:1}
+    .day-wx-temps{font-size:11px;font-weight:600;white-space:nowrap;margin-top:1px}
+    .day-wx-rain{font-size:10px;color:#3b82f6;white-space:nowrap;margin-top:1px}
+    .day-wx-pending{font-size:11px;color:var(--muted);white-space:nowrap}
+    .day-chevron{font-size:11px;color:var(--muted);transition:transform .2s;flex-shrink:0}
+    .day-chevron.open{transform:rotate(180deg)}
+    .day-body{border-top:1px solid var(--rule);padding:12px 14px 14px}
+    .day-tip{background:#FFF8F0;border-left:3px solid var(--orange);border-radius:8px;padding:8px 12px;font-size:13px;color:#7C2D12;line-height:1.6;margin-bottom:12px}
+    .day-tip strong{font-weight:700;color:#7C2D12}
+
+    /* SPLIT TIMELINE */
+    .split-timeline{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:4px}
+    .split-col-label{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+
+    /* TIMELINE */
+    .timeline{display:flex;flex-direction:column}
+    .tl-item{display:flex;gap:9px;align-items:flex-start;position:relative}
+    .tl-item:not(:last-child) .tl-dot-wrap::after{content:'';position:absolute;left:5px;top:13px;width:1px;bottom:-6px;background:var(--rule)}
+    .tl-dot-wrap{position:relative;flex-shrink:0;width:11px}
+    .tl-dot{width:11px;height:11px;border-radius:50%;background:var(--rule);position:relative;z-index:1;margin-top:3px}
+    .tl-dot.highlight{background:var(--orange)}
+    .tl-dot.flight{background:var(--navy)}
+    .tl-dot.food{background:#16a34a}
+    .tl-dot.church{background:#2563eb}
+    .tl-dot.key{background:var(--orange-2)}
+    .tl-text{padding-bottom:9px;flex:1;min-width:0}
+    .tl-time{font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.5px;margin-bottom:1px}
+    .tl-desc{font-size:13px;color:var(--text);line-height:1.5}
+    .tl-note{font-size:12px;color:var(--muted);margin-top:2px;line-height:1.5}
+    .tl-links{display:flex;gap:6px;margin-top:5px;flex-wrap:wrap}
+    .tl-link{font-size:11px;font-family:'Inter',sans-serif;color:var(--navy);text-decoration:none;border:1px solid rgba(26,50,82,.3);border-radius:99px;padding:2px 9px;display:inline-flex;align-items:center;gap:3px;transition:all .15s;white-space:nowrap}
+    .tl-link:hover{background:var(--navy);color:#fff;border-color:var(--navy)}
+
+    /* PACKING LIST */
+    .progress-bar-wrap{background:var(--card);border:1px solid var(--rule);border-radius:var(--radius);padding:14px 16px;margin-bottom:4px;box-shadow:var(--shadow)}
+    .progress-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+    .progress-title{font-size:13px;font-weight:600}
+    .progress-frac{font-size:12px;color:var(--muted)}
+    .progress-track{height:5px;background:var(--rule);border-radius:99px;overflow:hidden}
+    .progress-fill{height:100%;background:linear-gradient(90deg,var(--orange),var(--orange-2));border-radius:99px;transition:width .4s ease}
+    .filters{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:4px}
+    .filter-btn{padding:5px 13px;border-radius:99px;border:1px solid var(--rule);background:var(--card);font-family:'Inter',sans-serif;font-size:12px;font-weight:500;color:var(--muted);cursor:pointer;transition:all .15s}
+    .filter-btn:hover{border-color:var(--navy);color:var(--navy)}
+    .filter-btn.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+    .pack-section{margin-bottom:6px;border:1px solid var(--rule);border-radius:var(--radius);overflow:hidden;background:var(--card);box-shadow:var(--shadow)}
+    .pack-header{display:flex;align-items:center;justify-content:space-between;padding:12px 15px;cursor:pointer;user-select:none;transition:background .1s}
+    .pack-header:hover{background:var(--bg)}
+    .pack-header-left{font-weight:600;font-size:14px}
+    .pack-header-right{display:flex;align-items:center;gap:8px}
+    .pack-count{font-size:11px;color:var(--muted)}
+    .pack-chevron{font-size:10px;color:var(--muted);transition:transform .2s}
+    .pack-chevron.open{transform:rotate(180deg)}
+    .pack-items{padding:4px 12px 10px;border-top:1px solid var(--rule)}
+    .pack-item{display:flex;align-items:flex-start;gap:10px;padding:7px 5px;border-radius:8px;cursor:pointer;transition:background .1s}
+    .pack-item:hover{background:var(--bg)}
+    .pack-item.done{text-decoration:line-through;color:var(--muted)}
+    .checkbox{width:16px;height:16px;border-radius:4px;border:1.5px solid var(--rule);background:white;flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;transition:all .15s}
+    .checkbox.checked{background:var(--orange);border-color:var(--orange)}
+    .checkbox.checked::after{content:'✓';color:white;font-size:10px;font-weight:700}
+    .item-text{font-size:13.5px;line-height:1.4;flex:1}
+    .item-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+    .tag{font-size:10px;font-weight:600;letter-spacing:.5px;padding:1px 7px;border-radius:99px;text-transform:uppercase}
+    .tag-required{background:#FFF3F0;color:#9A3412;border:1px solid rgba(200,92,46,.25)}
+    .tag-beach{background:#ecfeff;color:#0e7490;border:1px solid #a5f3fc}
+    .tag-atv{background:#f3e8ff;color:#6d28d9;border:1px solid rgba(109,40,217,.25)}
+    .app-footer{text-align:center;margin-top:28px;font-size:11px;color:var(--muted);letter-spacing:1px}
+    .sync-bar{display:flex;align-items:center;justify-content:space-between;margin:20px 0 8px;gap:12px}
+    .sync-ts{font-size:11px;color:var(--muted);font-style:italic;white-space:nowrap}
+    .sync-btn{font-size:11px;font-family:'Inter',sans-serif;background:none;border:1px solid var(--rule);border-radius:99px;padding:3px 10px;color:var(--muted);cursor:pointer;transition:all .15s;white-space:nowrap;flex-shrink:0}
+    .sync-btn:hover:not(:disabled){border-color:var(--navy);color:var(--navy)}
+    .sync-btn:disabled{opacity:.5;cursor:default}
+    .sync-err{font-size:12px;color:#b91c1c;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:7px 11px;margin-bottom:8px;line-height:1.5}
+    @media(max-width:560px){.split-timeline{grid-template-columns:1fr}.weather-grid{grid-template-columns:1fr}:root{--hdr:156px}}
+  </style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+  const { useState, useEffect, useCallback } = React;
+
+  const STORAGE_KEY  = 'clarkes_packing_v1';
+  const WEATHER_KEY  = 'clarkes_weather_v1';
+  const WEATHER_TTL  = 6*60*60*1000;
+  const OM_BASE      = 'https://api.open-meteo.com/v1/forecast';
+
+  /* ══ WEATHER ZONES ══ */
+  const ZONES = [
+    {
+      zone:    "🇵🇹 Lisbon",
+      start:   "2025-06-06",
+      end:     "2025-06-16",
+      lat:     38.7169,
+      lon:     -9.1395,
+      color:   "#1a5276",
+      avgHi:   77,
+      avgLo:   62,
+      avgRain: 15,
+      desc:    "Warm and breezy. Evenings can be cool — pack a light layer. Great walking weather."
+    },
+    {
+      zone:    "🇮🇹 Palermo",
+      start:   "2025-06-17",
+      end:     "2025-06-18",
+      lat:     38.1157,
+      lon:     13.3615,
+      color:   "#C85C2E",
+      avgHi:   86,
+      avgLo:   69,
+      avgRain: 8,
+      desc:    "Hot and sunny. Chapel dress code required — covered shoulders and knees."
+    },
+    {
+      zone:    "🇮🇹 Ortigia",
+      start:   "2025-06-18",
+      end:     "2025-06-22",
+      lat:     37.0598,
+      lon:     15.2938,
+      color:   "#0e7490",
+      avgHi:   88,
+      avgLo:   70,
+      avgRain: 5,
+      desc:    "Hot, sunny, and dry. Perfect boat-day weather. Reef-safe sunscreen only, please."
+    },
+    {
+      zone:    "🇮🇹 Taormina",
+      start:   "2025-06-22",
+      end:     "2025-06-26",
+      lat:     37.8516,
+      lon:     15.2880,
+      color:   "#7c3aed",
+      avgHi:   86,
+      avgLo:   68,
+      avgRain: 5,
+      desc:    "Warm with a breeze near the gorge. Long pants + closed-toe shoes required for ATV."
+    },
+    {
+      zone:    "🇪🇸 Madrid",
+      start:   "2025-06-26",
+      end:     "2025-06-28",
+      lat:     40.4168,
+      lon:     -3.7038,
+      color:   "#b91c1c",
+      avgHi:   86,
+      avgLo:   63,
+      avgRain: 12,
+      desc:    "Hot and dry. Great walking weather. Light clothing and sunscreen a must."
+    },
+  ];
+
+  /* ── Weather helpers ── */
+  const wmoEmoji = c => {
+    c = parseInt(c ?? 0);
+    if (c === 0) return '☀️'; if (c === 1) return '🌤'; if (c === 2) return '⛅';
+    if (c === 3) return '☁️'; if ([45,48].includes(c)) return '🌫';
+    if ([51,53,55,56,57].includes(c)) return '🌦';
+    if ([61,63,65,66,67,80,81,82].includes(c)) return '🌧';
+    if ([71,73,75,77,85,86].includes(c)) return '❄️';
+    if ([95,96,99].includes(c)) return '⛈'; return '🌡';
+  };
+  const dayLabel  = s => { const d = new Date(s+'T12:00:00Z'); return ['Su','M','T','W','Th','F','Sa'][d.getUTCDay()]+' '+d.getUTCDate(); };
+  const daysUntil = s => { const t = new Date(); t.setHours(0,0,0,0); return Math.max(0,Math.ceil((new Date(s+'T00:00:00')-t)/86400000)-16); };
+  const timeAgo   = ts => { if(!ts) return null; const m=Math.round((Date.now()-ts)/60000); if(m<1)return'just now'; if(m<60)return`${m}m ago`; return`${Math.round(m/60)}h ago`; };
+
+  /* ── Legacy sheet integration (disabled) ── */
+  const SHEET_ID  = '';
+  const SHEET_TAB = 'flow';
+  const SHEET_KEY = 'clarkes_sheet_v1';
+  const SHEET_TTL = 15*60*1000;
+  const sheetCSVUrl = () => `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${SHEET_TAB}`;
+
+  /* ── Live Google Sheets sync ── */
+  const LIVE_SHEET_ID = '1nrFU4v9aPJKIwYjBg5YMMWVU8wxwAxJ-bjLtitfHoAc';
+  const SYNC_KEY  = 'clarkes_sync_v1';
+  const SYNC_TTL  = 60 * 60 * 1000; // re-fetch after 1 hour
+  const SHEET_YEAR = 2025;
+  function parseCSVRows(text){const rows=[];let row=[],f='',q=false;for(let i=0;i<text.length;i++){const c=text[i];if(q){if(c==='"'&&text[i+1]==='"'){f+='"';i++;}else if(c==='"')q=false;else f+=c;}else{if(c==='"')q=true;else if(c===','){row.push(f);f='';}else if(c==='\n'){row.push(f);rows.push(row);row=[];f='';}else if(c!=='\r')f+=c;}}if(f||row.length){row.push(f);rows.push(row);}return rows;}
+  function parseSheetCSV(csv){const rows=parseCSVRows(csv);const events={};let currentDate=null;const MNUM={Jan:1,Feb:2,Mar:3,Apr:4,May:5,Jun:6,Jul:7,Aug:8,Sep:9,Oct:10,Nov:11,Dec:12};const CAT_TYPE={Flights:'flight',Food:'food',Sightseeing:'highlight',Entertainment:'highlight',Lodging:'key'};const CHURCH_RX=/abbey|vatican|basilica|cathedral|chapel|prayer/i;const YEAR=new Date().getFullYear();for(const row of rows){const a=(row[0]||'').trim(),b=(row[1]||'').trim(),c=(row[2]||'').trim();const d=(row[3]||'').trim(),cat=(row[14]||'').trim();if(!a||!c||a.includes('Date'))continue;const dayNum=parseInt(b);if(b&&!isNaN(dayNum)&&dayNum>0){const m=a.match(/([A-Z][a-z]{2})\s+(\d+)/);if(m&&MNUM[m[1]]){currentDate=`${YEAR}-${String(MNUM[m[1]]).padStart(2,'0')}-${String(m[2]).padStart(2,'0')}`;if(!events[currentDate])events[currentDate]=[];}}else if(currentDate){if(a==='11:59 PM'&&cat==='Lodging')continue;const type=CHURCH_RX.test(c)?'church':(CAT_TYPE[cat]||'');events[currentDate].push({time:a,text:c,note:d||'',type,group:'all'});}}return events;}
+  async function fetchSheet(){if(!SHEET_ID)return null;const res=await fetch(sheetCSVUrl());if(!res.ok)throw new Error('sheet fetch failed');return parseSheetCSV(await res.text());}
+
+  /* ── Live sync parsers ── */
+
+  // "Fri, Jun 5" → "2025-06-05"
+  function parseSheetDate(str){
+    if(!str)return null;
+    str=str.trim();
+    const MN={Jan:1,Feb:2,Mar:3,Apr:4,May:5,Jun:6,Jul:7,Aug:8,Sep:9,Oct:10,Nov:11,Dec:12};
+    const m=str.match(/([A-Z][a-z]{2})\s+(\d+)/);
+    if(!m||!MN[m[1]])return null;
+    return `${SHEET_YEAR}-${String(MN[m[1]]).padStart(2,'0')}-${String(parseInt(m[2])).padStart(2,'0')}`;
+  }
+
+  // Infer dot color from event title
+  function inferType(t){
+    if(/flight|depart|layover|easyjet|ryanair|\baa\d|interbus|trenitalia|\btrain\b|bus to/i.test(t))return'flight';
+    if(/lunch|dinner|breakfast|nata|cocktail|cake|restaurant|boa-boa/i.test(t))return'food';
+    if(/church|chapel|basilica|cathedral|riverside int/i.test(t))return'church';
+    if(/check.?in|checkout|check.?out|hotel|stay at|send.?off|arrive.*airport|arrive.*station/i.test(t))return'key';
+    if(/tour|visit|museum|surf|boat|quad|iliad|photo session|ceremony|rehearsal|lesson|excursion|rental car|surprise activity/i.test(t))return'highlight';
+    return'';
+  }
+
+  // JSONP loader — works from file://, localhost, and GitHub Pages alike.
+  // Google's gviz/tq endpoint supports JSONP for publicly-shared sheets.
+  function fetchSheetJsonp(sheetName){
+    return new Promise((resolve,reject)=>{
+      const cb=`_gs_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+      const script=document.createElement('script');
+      const cleanup=()=>{ delete window[cb]; if(script.parentNode)script.parentNode.removeChild(script); };
+      const timer=setTimeout(()=>{ cleanup(); reject(new Error('Request timed out after 15 s')); },15000);
+      window[cb]=(data)=>{
+        clearTimeout(timer); cleanup();
+        if(data.status==='error'){
+          const msg=(data.errors&&data.errors[0]&&data.errors[0].detailed_message)||'Sheet returned an error';
+          reject(new Error(msg)); return;
+        }
+        resolve(data);
+      };
+      const url=`https://docs.google.com/spreadsheets/d/${LIVE_SHEET_ID}/gviz/tq?tqx=responseHandler:${cb}${sheetName?`&sheet=${encodeURIComponent(sheetName)}`:''}`;
+      script.src=url;
+      script.onerror=()=>{ clearTimeout(timer); cleanup(); reject(new Error('Could not reach Google Sheets — make sure the Sheet is set to "Anyone with the link can view"')); };
+      document.head.appendChild(script);
+    });
+  }
+
+  // Convert a gviz JSON table to an array of string arrays (same shape as parseCSVRows output).
+  // gviz does NOT include a header row in .rows — headers live in .cols[i].label.
+  function gvizToRows(data){
+    const numCols=(data.table?.cols||[]).length;
+    return(data.table?.rows||[]).map(row=>{
+      const cells=row.c||[];
+      return Array.from({length:numCols},(_,i)=>{ const v=cells[i]?.v; return v!=null?String(v):''; });
+    });
+  }
+
+  // Tab 2: schedule_items  (Date, Start_Time, End_Date, End_Time, Title, Notes, Maps_URL, Ticket_URL)
+  function parseScheduleItems(rows){
+    const evts={};
+    for(const row of rows){
+      const dateStr=(row[0]||'').trim(),startTime=(row[1]||'').trim();
+      const endDateStr=(row[2]||'').trim(),endTime=(row[3]||'').trim();
+      const title=(row[4]||'').trim(),notes=(row[5]||'').trim();
+      const mapUrl=(row[6]||'').trim()||undefined,ticketUrl=(row[7]||'').trim()||undefined;
+      if(!dateStr||!title)continue;
+      const startDate=parseSheetDate(dateStr);
+      if(!startDate)continue;
+      const diffDay=endDateStr&&endDateStr.trim()&&endDateStr.trim()!==dateStr.trim();
+      const endDate=diffDay?parseSheetDate(endDateStr):null;
+      // Multi-day "Stay at Hotel" → check-in event on start day, checkout event on end day
+      if(/stay at/i.test(title)&&endDate){
+        const label=title.replace(/^Stay at\s*/i,'');
+        if(!evts[startDate])evts[startDate]=[];
+        evts[startDate].push({time:startTime||'',text:`Check in — ${label}`,note:notes,type:'key',mapUrl,ticketUrl});
+        if(!evts[endDate])evts[endDate]=[];
+        evts[endDate].push({time:endTime||'',text:`Checkout — ${label}`,note:notes?`Conf: ${notes}`:'',type:'key',mapUrl});
+        continue;
+      }
+      if(!evts[startDate])evts[startDate]=[];
+      evts[startDate].push({time:startTime,text:title,note:notes,type:inferType(title),mapUrl,ticketUrl});
+    }
+    return evts;
+  }
+
+  // Tab 3: Accomodations  (Hotel_Name, City, Check_In_Date, Check_In_Time, Check_Out_Date, Check_Out_Time, Address, Confirmation, Phone, Notes)
+  function parseAccommodations(rows){
+    const hotels=[];
+    for(const row of rows){
+      const name=(row[0]||'').trim();
+      if(!name)continue;
+      const city=(row[1]||'').trim(),checkInDate=parseSheetDate((row[2]||'').trim());
+      const checkInTime=(row[3]||'').trim(),checkOutDate=parseSheetDate((row[4]||'').trim());
+      const checkOutTime=(row[5]||'').trim(),address=(row[6]||'').trim();
+      const conf=(row[7]||'').trim(),phone=(row[8]||'').trim(),notes=(row[9]||'').trim();
+      if(!checkInDate)continue;
+      hotels.push({name,city,checkInDate,checkInTime,checkOutDate,checkOutTime,address,conf,phone,notes});
+    }
+    return hotels;
+  }
+
+  // Tab 1: main itinerary  (Date, Day_Title, City, Country, Summary, Details)
+  function parseMainTab(rows){
+    const days={};
+    for(const row of rows){
+      const dateStr=(row[0]||'').trim();
+      if(!dateStr)continue;
+      const title=(row[1]||'').trim(),summary=(row[4]||'').trim(),details=(row[5]||'').trim();
+      const d=parseSheetDate(dateStr);
+      if(d&&title)days[d]={title,summary,details};
+    }
+    return days;
+  }
+
+  async function fetchAllSheets(){
+    const [mainData,schedData,accomData]=await Promise.all([
+      fetchSheetJsonp(''),               // Tab 1 — main itinerary (first/default tab)
+      fetchSheetJsonp('schedule_items'), // Tab 2 — hourly events
+      fetchSheetJsonp('Accomodations'),  // Tab 3 — hotel info
+    ]);
+    return {
+      events:  parseScheduleItems(gvizToRows(schedData)),
+      hotels:  parseAccommodations(gvizToRows(accomData)),
+      dayInfo: parseMainTab(gvizToRows(mainData)),
+    };
+  }
+
+  async function fetchZone(z){
+    const r=await fetch(`${OM_BASE}?latitude=${z.lat}&longitude=${z.lon}&daily=temperature_2m_max,temperature_2m_min,weathercode,precipitation_probability_max&temperature_unit=fahrenheit&start_date=${z.start}&end_date=${z.end}&timezone=auto&forecast_days=16`);
+    if(!r.ok)throw new Error(); return r.json();
+  }
+
+  function wxForDate(date,wxCache){
+    const zone=ZONES.find(z=>date>=z.start&&date<z.end);
+    if(!zone)return null;
+    const data=wxCache[zone.zone];
+    if(data?.daily?.time){const idx=data.daily.time.indexOf(date);if(idx!==-1)return{hi:Math.round(data.daily.temperature_2m_max[idx]),lo:Math.round(data.daily.temperature_2m_min[idx]),code:data.daily.weathercode[idx],rain:data.daily.precipitation_probability_max?.[idx]??null,color:zone.color,isAvg:false};}
+    return{hi:zone.avgHi,lo:zone.avgLo,rain:zone.avgRain,code:null,color:zone.color,isAvg:true};
+  }
+
+  /* ══════════════════════════════════════════════════════════════
+     ITINERARY — 23 days, Jun 5–27 2025
+     Lisbon (Jun 5–15) · Palermo (Jun 16–17) ·
+     Ortigia (Jun 17–21) · Taormina (Jun 22–24) · Madrid (Jun 25–27)
+     ══════════════════════════════════════════════════════════════ */
+  const DAYS = [
+
+    // ─── DAY 1 ────────────────────────────────────────────────────
+    {
+      date:  "2025-06-05",
+      day:   1,
+      label: "Friday, Jun 5",
+      title: "Fly to Lisbon",
+      loc:   "✈️ Charlotte → Philadelphia → Lisbon",
+      color: "#64748b",
+      tip:   "Pack snacks and a neck pillow for the overnight leg to Lisbon. You have lounge access during the Philly layover.",
+      events: [
+        { time: "7:57 AM",  text: "Flight to Philadelphia",       note: "AA3046 · Arrives 9:44 AM",            type: "flight" },
+        { time: "9:45 AM",  text: "Layover at PHL",               note: "Lounge access available",              type: "" },
+        { time: "9:05 PM",  text: "Overnight flight to Lisbon",   note: "Arrives Sat 9:05 AM · Pack snacks",   type: "flight" },
+      ]
+    },
+
+    // ─── DAY 2 ────────────────────────────────────────────────────
+    {
+      date:  "2025-06-06",
+      day:   2,
+      label: "Saturday, Jun 6",
+      title: "Arrive in Lisbon",
+      loc:   "🇵🇹 Carcavelos, Portugal",
+      color: "#1a5276",
+      tip:   "Check in to Art4You Carcavelos Suites at 3:00 PM — Av. Jorge V 219, Carcavelos. Rest up, you've earned it.",
+      events: [
+        { time: "9:05 AM", text: "Land at Lisbon Airport (LIS)", type: "flight" },
+        { time: "3:00 PM", text: "Check in — Art4You Carcavelos Suites", note: "Av. Jorge V 219, Carcavelos", type: "key", mapUrl: "https://maps.app.goo.gl/nZDEywuoEBrNz2Cd9" },
+      ]
+    },
+
+    // ─── DAY 3 ────────────────────────────────────────────────────
+    {
+      date:  "2025-06-07",
+      day:   3,
+      label: "Sunday, Jun 7",
+      title: "Sunday Church",
+      loc:   "🇵🇹 Lisbon, Portugal",
+      color: "#1d4ed8",
+      events: [
+        { time: "11:00 AM", text: "Riverside International Church", note: "Service · 11:00 AM – 12:30 PM", type: "church", mapUrl: "https://maps.app.goo.gl/3RLP4wJggbWL7az36" },
+      ]
+    },
+
+    // ─── DAY 4 ────────────────────────────────────────────────────
+    {
+      date:  "2025-06-08",
+      day:   4,
+      label: "Monday, Jun 8",
+      title: "Hair, Make-Up & Photos",
+      loc:   "🇵🇹 Lisbon · Wedding Prep",
+      color: "#9b2335",
+      events: [
+        { time: "9:00 AM",  text: "Isabel picks up Jess",              note: "Ends 12:30 PM",           type: "key" },
+        { time: "9:30 AM",  text: "Hair & Make-Up Trial",              note: "Ends 12:30 PM",           type: "highlight" },
+        { time: "1:00 PM",  text: "Lunch with Isabel",                                                   type: "food" },
+        { time: "3:00 PM",  text: "Venue Visit — Pateo Alfacinha",     note: "Ends 5:00 PM",            type: "key", mapUrl: "https://maps.app.goo.gl/GmMPs4vUAjqLgvEW8" },
+        { time: "6:00 PM",  text: "Photo Session",                     note: "Ends 8:00 PM",            type: "highlight" },
+      ]
+    },
+
+    // ─── DAY 5 ────────────────────────────────────────────────────
+    {
+      date:  "2025-06-09",
+      day:   5,
+      label: "Tuesday, Jun 9",
+      title: "Free Day in Lisbon",
+      loc:   "🇵🇹 Lisbon, Portugal",
+      color: "#1a5276",
+      events: []
+    },
+
+    // ─── DAY 6 ────────────────────────────────────────────────────
+    {
+      date:  "2025-06-10",
+      day:   6,
+      label: "Wednesday, Jun 10",
+      title: "Free Day in Lisbon",
+      loc:   "🇵🇹 Lisbon, Portugal",
+      color: "#1a5276",
+      events: []
+    },
+
+    // ─── DAY 7 ────────────────────────────────────────────────────
+    {
+      date:  "2025-06-11",
+      day:   7,
+      label: "Thursday, Jun 11",
+      title: "Guest Arrivals",
+      loc:   "🇵🇹 Lisbon, Portugal",
+      color: "#b45309",
+      tip:   "Pick up food and drinks for the evening — guests will be arriving throughout the day.",
+      events: [
+        { time: "", text: "Prepare for guests", note: "Pick up food & drinks for dinner", type: "key" },
+      ]
+    },
+
+    // ─── DAY 8 ────────────────────────────────────────────────────
+    {
+      date:  "2025-06-12",
+      day:   8,
+      label: "Friday, Jun 12",
+      title: "Celebration with Friends",
+      loc:   "🇵🇹 Lisbon, Portugal",
+      color: "#7c3aed",
+      events: [
+        { time: "9:00 AM",  text: "(Girls) Pasteis de Nata Lesson",  note: "Ends 12:00 PM",                             type: "food",      mapUrl: "https://maps.app.goo.gl/nZDEywuoEBrNz2Cd9" },
+        { time: "12:00 PM", text: "(Girls) Lisbon Excursions",       note: "Afternoon out · Ends ~9:00 PM",              type: "highlight" },
+        { time: "6:00 PM",  text: "(Boys) Sunset Tour",              note: "Ends 8:00 PM",                              type: "highlight",  mapUrl: "https://maps.app.goo.gl/MM1L5JLNcfJFRS2Q7" },
+        { time: "9:30 PM",  text: "Dinner @ Boa-Boa",               note: "Reservation for 12 · Ends 11:00 PM",         type: "food",      mapUrl: "https://maps.app.goo.gl/ViKSRC8ttjAC2J7TA" },
+      ]
+    },
+
+    // ─── DAY 9 ────────────────────────────────────────────────────
+    {
+      date:  "2025-06-13",
+      day:   9,
+      label: "Saturday, Jun 13",
+      title: "Rehearsal & Dinner",
+      loc:   "🇵🇹 Lisbon · Rehearsal Day",
+      color: "#9b2335",
+      events: [
+        { time: "9:00 AM",  text: "Surf Lessons",                    note: "Ends 11:00 AM",            type: "highlight", mapUrl: "https://maps.app.goo.gl/fEqavWkUxeeNR22n8" },
+        { time: "4:00 PM",  text: "Rehearsal — Art4You Carcavelos", note: "Ends 6:00 PM",             type: "key",       mapUrl: "https://maps.app.goo.gl/nZDEywuoEBrNz2Cd9" },
+        { time: "6:30 PM",  text: "Rehearsal Dinner",               note: "Ends 8:30 PM",             type: "food" },
+      ]
+    },
+
+    // ─── DAY 10 — WEDDING DAY ─────────────────────────────────────
+    {
+      date:  "2025-06-14",
+      day:   10,
+      label: "Sunday, Jun 14",
+      title: "Wedding Day 💍",
+      loc:   "🇵🇹 Lisbon · Pateo Alfacinha",
+      color: "#7c2d12",
+      tip:   "Tonight: check in to Hotel Vila Galé Collection Palácio dos Arcos (Conf: 9065497). Late checkout tomorrow at 2:00 PM has been requested.",
+      events: [
+        { time: "1:00 PM",  text: "Girls get ready",                note: "Ends 5:00 PM",                                        type: "key" },
+        { time: "5:00 PM",  text: "Photos",                         note: "Ends 6:00 PM",                                        type: "highlight" },
+        { time: "6:00 PM",  text: "Ceremony",                       note: "Ends 6:45 PM",                                        type: "highlight", mapUrl: "https://maps.app.goo.gl/5hU2VqoZr7SrQW836" },
+        { time: "6:45 PM",  text: "Traditional Photos",             note: "Ends 7:00 PM",                                        type: "highlight" },
+        { time: "7:00 PM",  text: "Cocktail Hour",                  note: "Ends 8:30 PM",                                        type: "food" },
+        { time: "8:15 PM",  text: "Couples Photos",                 note: "While guests find their seats at dinner",             type: "highlight" },
+        { time: "9:00 PM",  text: "Dinner",                         note: "Ends 10:30 PM",                                       type: "food" },
+        { time: "10:15 PM", text: "Speeches",                                                                                    type: "" },
+        { time: "11:30 PM", text: "Cake",                                                                                        type: "food" },
+        { time: "11:30 PM", text: "Showcooking",                                                                                 type: "highlight" },
+      ]
+    },
+
+    // ─── DAY 11 ───────────────────────────────────────────────────
+    {
+      date:  "2025-06-15",
+      day:   11,
+      label: "Monday, Jun 15",
+      title: "Guest Departures",
+      loc:   "🇵🇹 Lisbon · Wrap Up",
+      color: "#1a5276",
+      tip:   "Late checkout from Hotel Vila Galé at 2:00 PM. Coordinate with hotel on bag storage if needed before heading out.",
+      events: [
+        { time: "1:00 AM",  text: "Send-off",                              note: "Ends 1:15 AM",                        type: "key" },
+        { time: "11:05 AM", text: "Ivie departs — Flight to Philadelphia", note: "AA259 · Arrives 1:45 PM",             type: "flight" },
+        { time: "2:00 PM",  text: "Checkout — Hotel Vila Galé",           note: "Conf: 9065497 · Late checkout",       type: "key" },
+        { time: "3:52 PM",  text: "Ivie departs — Flight to Charlotte",   note: "AA3152 · Arrives 5:57 PM",            type: "flight" },
+      ]
+    },
+
+    // ─── DAY 12 ───────────────────────────────────────────────────
+    {
+      date:  "2025-06-16",
+      day:   12,
+      label: "Tuesday, Jun 16",
+      title: "Fly to Palermo",
+      loc:   "✈️ Lisbon → Palermo",
+      color: "#64748b",
+      tip:   "Checkout from Art4You Carcavelos today. La Terrazza Sul Centro reception is open 8:00 AM–4:00 PM (Conf: JC-0038 · ☎ +39 333 456 7678).",
+      events: [
+        { time: "7:10 AM",  text: "Easton departs Lisbon",          note: "Conf: IPXKVN",                type: "flight", mapUrl: "https://maps.app.goo.gl/bKKwprcmDUvhfrad9" },
+        { time: "4:30 PM",  text: "EasyJet flight to Palermo",      note: "Arrives ~8:30 PM",            type: "flight" },
+        { time: "Evening",  text: "Check in — La Terrazza Sul Centro", note: "Via dell'Università 20, Palermo · Conf: JC-0038 · ☎ +39 333 456 7678", type: "key", mapUrl: "https://maps.app.goo.gl/jLQ2j3WD7FpWcYQw7" },
+      ]
+    },
+
+    // ─── DAY 13 ───────────────────────────────────────────────────
+    {
+      date:  "2025-06-17",
+      day:   13,
+      label: "Wednesday, Jun 17",
+      title: "Palermo & On to Ortigia",
+      loc:   "🇮🇹 Palermo → Siracusa, Sicily",
+      color: "#C85C2E",
+      tip:   "Chapel-appropriate attire required for the Street Food Tour (see ticket for dress code). Meet at Piazza Olivella, in front of the Salinas Archeological Museum — 100m from the Massimo Theater.",
+      events: [
+        { time: "10:00 AM", text: "Checkout — La Terrazza Sul Centro",   note: "Conf: JC-0038",                                                                      type: "key" },
+        { time: "10:20 AM", text: "Street Food Tour",                    note: "Ends 1:30 PM · Meet at Piazza Olivella",                                             type: "highlight", mapUrl: "https://maps.app.goo.gl/Z4cJomEx5ZNeo8mF8",      ticketUrl: "https://drive.google.com/file/d/1SYE0u3H6cpUTi-S6qSWpmeNLuUXQHcVL/view?usp=sharing" },
+        { time: "5:00 PM",  text: "Interbus to Siracusa",               note: "Departs: Palermo – Via Fazello (Stazione Centrale) · Arrives: Siracusa – Corso Umberto · ~7:30 PM", type: "flight",    mapUrl: "https://maps.app.goo.gl/gX3BgFVTkL9pocBz8",      ticketUrl: "https://drive.google.com/file/d/16skcqFVpLXI0pd_6WUgGxuK2wiSOz7_S/view?usp=drive_link" },
+        { time: "7:30 PM",  text: "Arrive in Siracusa",                                                                                                              type: "key",       mapUrl: "https://maps.app.goo.gl/Xmq8p3e17xwxMfm66" },
+        { time: "8:00 PM",  text: "Check in — Ortea Palace Hotel",      note: "Riva Nazario Sauro, Siracusa · Futura Duplex King · ☎ +39 024 852 2801",             type: "key",       mapUrl: "https://maps.app.goo.gl/Fm3E2ZjiJy8pAKkaA" },
+      ]
+    },
+
+    // ─── DAY 14 ───────────────────────────────────────────────────
+    {
+      date:  "2025-06-18",
+      day:   14,
+      label: "Thursday, Jun 18",
+      title: "Ortigia — The Iliad",
+      loc:   "🇮🇹 Ortigia, Siracusa · Ortea Palace",
+      color: "#0e7490",
+      events: [
+        { time: "7:30 PM", text: "The Iliad", note: "Ancient Theatre of Siracusa", type: "highlight", mapUrl: "https://maps.app.goo.gl/nWj4Ak53Kgk8eDV29", ticketUrl: "https://drive.google.com/file/d/1aZXaV4Es0dPegmpwpQXosGT2yE3Zso8Q/view?usp=sharing" },
+      ]
+    },
+
+    // ─── DAY 15 ───────────────────────────────────────────────────
+    {
+      date:  "2025-06-19",
+      day:   15,
+      label: "Friday, Jun 19",
+      title: "Sicily by Car",
+      loc:   "🇮🇹 Noto · Modica · Ragusa",
+      color: "#0e7490",
+      tip:   "Parking tip: use blue lines + EasyPark app in Noto. Modica & Ragusa: blue lines, pay at the machine. Car booking ref: 1797995248.",
+      events: [
+        { time: "8:00 AM", text: "Pick up Enterprise Rental Car",  note: "Booking: 1797995248 · Return by 7:00 PM",        type: "key",       mapUrl: "https://maps.app.goo.gl/KwgBVwLbnZNzxqQV8",   ticketUrl: "https://drive.google.com/file/d/1GlMWORKpAb5XZ8_QPAQzvCL-Y9taKxw8/view?usp=drive_link" },
+        { time: "",        text: "Drive to Noto",                  note: "Parking: blue lines + EasyPark app",             type: "highlight", mapUrl: "https://maps.app.goo.gl/E7KomxzbajnyYWri7" },
+        { time: "",        text: "Drive to Modica",                note: "Parking: blue lines, pay at machine",            type: "highlight", mapUrl: "https://maps.app.goo.gl/ebQ1NTtNH5ALcU8s9" },
+        { time: "",        text: "Drive to Ragusa",                                                                        type: "highlight", mapUrl: "https://maps.app.goo.gl/GJo8WHbFzikch9Q87" },
+        { time: "7:00 PM", text: "Return rental car",                                                                     type: "key" },
+      ]
+    },
+
+    // ─── DAY 16 ───────────────────────────────────────────────────
+    {
+      date:  "2025-06-20",
+      day:   16,
+      label: "Saturday, Jun 20",
+      title: "Boat Tour",
+      loc:   "🇮🇹 Ortigia · Ortea Palace",
+      color: "#0369a1",
+      tip:   "Bring swimwear, reef-safe sunscreen, a hat, and water sandals. Booked via Marriott — guide contact: ☎ +39 320 040 6152.",
+      events: [
+        { time: "1:50 PM", text: "Boat Tour", note: "Ends 4:30 PM · Guide: ☎ +39 320 040 6152", type: "highlight", mapUrl: "https://maps.app.goo.gl/cyyoBFf7VESCTPW28", ticketUrl: "https://drive.google.com/file/d/1OZ0kuiWTgwYEWxGEcXHLXjrk1WCAc_WJ/view?usp=drive_link" },
+      ]
+    },
+
+    // ─── DAY 17 ───────────────────────────────────────────────────
+    {
+      date:  "2025-06-21",
+      day:   17,
+      label: "Sunday, Jun 21",
+      title: "Free Day in Ortigia",
+      loc:   "🇮🇹 Ortigia · Ortea Palace",
+      color: "#0e7490",
+      events: []
+    },
+
+    // ─── DAY 18 ───────────────────────────────────────────────────
+    {
+      date:  "2025-06-22",
+      day:   18,
+      label: "Monday, Jun 22",
+      title: "Train to Taormina",
+      loc:   "✈️ Ortigia → Taormina",
+      color: "#64748b",
+      tip:   "Checkout from Ortea Palace by noon — store bags at the hotel early if needed before catching the 10:19 AM train.",
+      events: [
+        { time: "10:19 AM", text: "Trenitalia — Train to Taormina",   note: "Arrives 12:14 PM",                                                   type: "flight", mapUrl: "https://maps.app.goo.gl/j2zhViECj9E11dXM6",   ticketUrl: "https://drive.google.com/file/d/1LOVxtXd8GiLnfR_qa-4dkXtbdATYMeQK/view?usp=sharing" },
+        { time: "12:00 PM", text: "Checkout — Ortea Palace Hotel",    note: "Noon checkout deadline",                                              type: "key" },
+        { time: "12:14 PM", text: "Arrive Taormina-Giardini Station",                                                                             type: "key",    mapUrl: "https://maps.app.goo.gl/zsmJhK9QoeTdMYVH6" },
+        { time: "12:30 PM", text: "Bus to Taormina Centro",           note: "Autobus TA156 · Arrives 12:45 PM",                                   type: "",       mapUrl: "https://maps.app.goo.gl/j7SBRLH68JEFFsubA",   ticketUrl: "https://drive.google.com/file/d/1LOVxtXd8GiLnfR_qa-4dkXtbdATYMeQK/view?usp=sharing" },
+        { time: "3:00 PM",  text: "Check in — Cascabella Taormina",  note: "24 Piazza Raggia · Conf: 5935052052 · ☎ +39 334 159 0596",           type: "key" },
+      ]
+    },
+
+    // ─── DAY 19 ───────────────────────────────────────────────────
+    {
+      date:  "2025-06-23",
+      day:   19,
+      label: "Tuesday, Jun 23",
+      title: "Alcantara Quad Adventure",
+      loc:   "🇮🇹 Taormina · Cascabella",
+      color: "#7c3aed",
+      tip:   "Wear long pants, closed-toe shoes, and bring a light windbreaker — it gets breezy near the gorge. Booked on WhatsApp: ☎ +39 393 966 6314.",
+      events: [
+        { time: "9:00 AM", text: "Alcantara Quad Tour", note: "Ends 1:30 PM · Contact: ☎ +39 393 966 6314", type: "highlight", mapUrl: "https://maps.app.goo.gl/NaJ1LDUdJeijwjbt7" },
+      ]
+    },
+
+    // ─── DAY 20 ───────────────────────────────────────────────────
+    {
+      date:  "2025-06-24",
+      day:   20,
+      label: "Wednesday, Jun 24",
+      title: "Free Day in Taormina",
+      loc:   "🇮🇹 Taormina · Cascabella",
+      color: "#7c3aed",
+      events: []
+    },
+
+    // ─── DAY 21 ───────────────────────────────────────────────────
+    {
+      date:  "2025-06-25",
+      day:   21,
+      label: "Thursday, Jun 25",
+      title: "Fly to Madrid",
+      loc:   "✈️ Taormina → Madrid",
+      color: "#64748b",
+      tip:   "Checkout from Cascabella Taormina by 11:00 AM. Check in to Central Palace Madrid on arrival (Ref: clar_2665149 · ID: 749880).",
+      events: [
+        { time: "11:00 AM", text: "Checkout — Cascabella Taormina",   note: "Conf: 5935052052",                                                   type: "key" },
+        { time: "3:00 PM",  text: "Arrive at Catania Airport (CTA)",                                                                              type: "flight", mapUrl: "https://maps.app.goo.gl/b1Dfwg7yC2puhRtS7" },
+        { time: "5:10 PM",  text: "Ryanair flight to Madrid",         note: "Arrives 8:15 PM",                                                    type: "flight", mapUrl: "https://maps.app.goo.gl/wvJEVFvKHr8x6R8C6" },
+        { time: "8:15 PM",  text: "Check in — Central Palace Madrid", note: "Pl. de Ote. 2, Madrid · Ref: clar_2665149 · ID: 749880 · ☎ +34 915 482 018", type: "key", mapUrl: "https://maps.app.goo.gl/PdT9K3BSTBHbWiZZ6" },
+      ]
+    },
+
+    // ─── DAY 22 ───────────────────────────────────────────────────
+    {
+      date:  "2025-06-26",
+      day:   22,
+      label: "Friday, Jun 26",
+      title: "Madrid — Surprise Activity",
+      loc:   "🇪🇸 Madrid, Spain · Central Palace",
+      color: "#b91c1c",
+      events: [
+        { time: "9:00 AM", text: "Surprise Activity", type: "highlight", mapUrl: "https://maps.app.goo.gl/G5zcsTXFdVTTAZ4K9" },
+      ]
+    },
+
+    // ─── DAY 23 ───────────────────────────────────────────────────
+    {
+      date:  "2025-06-27",
+      day:   23,
+      label: "Saturday, Jun 27",
+      title: "Fly Home to Charlotte",
+      loc:   "✈️ Madrid → Charlotte",
+      color: "#64748b",
+      tip:   "Checkout from Central Palace Madrid by noon. AA749 departs at 1:00 PM and arrives in Charlotte at 4:20 PM.",
+      events: [
+        { time: "12:00 PM", text: "Checkout — Central Palace Madrid", note: "Ref: clar_2665149",    type: "key" },
+        { time: "1:00 PM",  text: "Flight to Charlotte",              note: "AA749 · Arrives 4:20 PM", type: "flight", mapUrl: "https://maps.app.goo.gl/3QmWGroDuLA2sYro9" },
+      ]
+    },
+  ];
+
+  /* ══ PACKING LIST ══ */
+  const SECTIONS = [
+    { cat: "💍 Wedding & Formal", items: [
+      { name: "Wedding outfit",                                    required: true },
+      { name: "Wedding shoes",                                     required: true },
+      { name: "Accessories & jewelry",                             required: true },
+      { name: "Getting-ready outfit (hair & make-up day)" },
+    ]},
+    { cat: "⛪ Chapel & Church Attire", items: [
+      { name: "Top with covered shoulders",                        required: true },
+      { name: "Outfit that covers knees",                          required: true },
+      { name: "Light scarf or pashmina — doubles as cover-up",     required: true },
+    ]},
+    { cat: "🏖️ Beach & Boat", items: [
+      { name: "Swimwear (×2)",                                     required: true, tags: ["beach"] },
+      { name: "Reef-safe sunscreen SPF 50+",                       required: true, tags: ["beach"] },
+      { name: "Water sandals or flip-flops",                                       tags: ["beach"] },
+      { name: "Hat / sun protection",                                               tags: ["beach"] },
+      { name: "Beach bag or tote",                                                  tags: ["beach"] },
+      { name: "Snorkel mask (optional)",                                            tags: ["beach"] },
+    ]},
+    { cat: "🏍️ ATV & Adventure", items: [
+      { name: "Long pants or leggings",                            required: true, tags: ["atv"] },
+      { name: "Closed-toe shoes / sneakers",                       required: true, tags: ["atv"] },
+      { name: "Light windbreaker or jacket",                                        tags: ["atv"] },
+      { name: "Sunglasses",                                                         tags: ["atv"] },
+    ]},
+    { cat: "👗 Everyday Clothing", items: [
+      { name: "Casual tops (×5)" },
+      { name: "Light dresses or linen pants (×3)" },
+      { name: "Comfortable shorts (×2)" },
+      { name: "Underwear (×10)" },
+      { name: "Socks (×7)" },
+      { name: "Comfortable walking shoes",                         required: true },
+      { name: "Sandals" },
+    ]},
+    { cat: "🧥 Outerwear", items: [
+      { name: "Light cardigan or wrap (cool Lisbon & Madrid evenings)" },
+      { name: "Packable rain jacket" },
+    ]},
+    { cat: "💻 Electronics", items: [
+      { name: "Phone + charger" },
+      { name: "EU plug adapter Type C/F",                          required: true },
+      { name: "Portable power bank" },
+      { name: "Earbuds / headphones — flights" },
+      { name: "Camera + memory cards" },
+    ]},
+    { cat: "🧴 Toiletries", items: [
+      { name: "Sunscreen SPF 50+",                                 required: true },
+      { name: "Deodorant, toothbrush, toothpaste" },
+      { name: "Prescription medications — full supply",            required: true },
+      { name: "Ibuprofen / Tylenol" },
+      { name: "Melatonin — jet lag" },
+    ]},
+    { cat: "📋 Documents & Money", items: [
+      { name: "Passport (valid 6+ months past Jun 27)",            required: true },
+      { name: "Flight confirmations — downloaded offline",         required: true },
+      { name: "All 6 hotel confirmations",                         required: true },
+      { name: "Wedding venue details",                             required: true },
+      { name: "Travel insurance documents" },
+      { name: "Credit card with no foreign transaction fees",      required: true },
+      { name: "Euros — cash",                                      required: true },
+    ]},
+  ];
+
+  const ALL_KEYS = SECTIONS.flatMap(s => s.items.map(i => `${s.cat}::${i.name}`));
+
+  /* ════════════════════════════════════════════════════════════════
+     UI — no need to edit below this line
+     ════════════════════════════════════════════════════════════════ */
+
+  function resolveDay(day, sheetEvents, syncEvents){
+    // Live sync (schedule_items) takes highest priority
+    if(syncEvents&&syncEvents[day.date]) return { events:syncEvents[day.date], splitEvents:day.splitEvents };
+    // Legacy sheet integration fallback
+    if(!sheetEvents) return { events: day.events||[], splitEvents: day.splitEvents };
+    const dateRows = sheetEvents[day.date] || [];
+    const toEvent = r => ({ time:r.time, text:r.text, note:r.note, type:r.type });
+    const allRows = dateRows.filter(r=>r.group==='all'||!r.group);
+    return { events:allRows.length?allRows.map(toEvent):(day.events||[]), splitEvents:day.splitEvents };
+  }
+
+  function WeatherCard({zone,data,loading}){
+    const eta  = daysUntil(zone.start);
+    const days = data?.daily?.time || [];
+    const has  = days.length > 0;
+    return(
+      <div className="weather-card" style={{borderLeftColor:zone.color}}>
+        <div className="wc-zone" style={{color:zone.color}}>{zone.zone}</div>
+        <div className="wc-dates">{zone.start.slice(5).replace('-','/')} – {zone.end.slice(5).replace('-','/')}</div>
+        <div className="wc-desc">{zone.desc}</div>
+        <div className="wc-forecast">
+          {loading&&!has&&<div className="wc-loading">fetching…</div>}
+          {!loading&&!has&&<div className="wc-pending">
+            <span className="wc-avgs">↑{zone.avgHi}°F<small> avg</small>&nbsp; ↓{zone.avgLo}°F<small> avg</small></span>
+            {eta>0&&<span className="wc-eta">Forecast in ~{eta}d</span>}
+          </div>}
+          {has&&<div className="wc-days">{days.map((d,i)=>{
+            const rain=data.daily.precipitation_probability_max?.[i];
+            return(
+              <div className="wc-day" key={d}>
+                <div className="wc-day-label">{dayLabel(d)}</div>
+                <div className="wc-day-icon">{wmoEmoji(data.daily.weathercode[i])}</div>
+                <div className="wc-day-hi">{Math.round(data.daily.temperature_2m_max[i])}°</div>
+                <div className="wc-day-lo">{Math.round(data.daily.temperature_2m_min[i])}°</div>
+                {rain!=null&&<div className="wc-day-rain">💧{rain}%</div>}
+              </div>
+            );
+          })}</div>}
+        </div>
+      </div>
+    );
+  }
+
+  function Timeline({events}){
+    return(
+      <div className="timeline">
+        {events.map((e,i)=>(
+          <div className="tl-item" key={i}>
+            <div className="tl-dot-wrap"><div className={`tl-dot${e.type?' '+e.type:''}`}/></div>
+            <div className="tl-text">
+              {e.time&&<div className="tl-time">{e.time}</div>}
+              <div className="tl-desc">{e.text}</div>
+              {e.note&&<div className="tl-note">{e.note}</div>}
+              {(e.mapUrl||e.ticketUrl)&&(
+                <div className="tl-links">
+                  {e.mapUrl&&<a href={e.mapUrl} target="_blank" rel="noopener noreferrer" className="tl-link">📍 Map</a>}
+                  {e.ticketUrl&&<a href={e.ticketUrl} target="_blank" rel="noopener noreferrer" className="tl-link">🎟 Ticket</a>}
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  function DayCard({day,wxCache,sheetEvents,syncData}){
+    const [open,setOpen]=useState(false);
+    const wx=wxForDate(day.date,wxCache);
+    const {events,splitEvents}=resolveDay(day,sheetEvents,syncData?.events);
+
+    // Augment tip with live hotel check-in / checkout info from Accommodations tab
+    let tip=day.tip;
+    if(syncData?.hotels){
+      const ci=syncData.hotels.find(h=>h.checkInDate===day.date);
+      if(ci&&(!tip||!tip.includes(ci.name))){
+        const p=[`Check in to ${ci.name}`];
+        if(ci.checkInTime)p.push(`at ${ci.checkInTime}`);
+        if(ci.conf)p.push(`· Conf: ${ci.conf}`);
+        if(ci.phone)p.push(`· ☎ ${ci.phone}`);
+        if(ci.address)p.push(`· ${ci.address}`);
+        const ht=p.join(' ')+'.';
+        tip=tip?`${tip} ${ht}`:ht;
+      }
+      const co=syncData.hotels.find(h=>h.checkOutDate===day.date&&h.checkInDate!==day.date);
+      if(co&&(!tip||!tip.includes(co.name))){
+        const ct=`Checkout from ${co.name}${co.checkOutTime?` by ${co.checkOutTime}`:''}${co.conf?` · Conf: ${co.conf}`:''}${co.phone?` · ☎ ${co.phone}`:''}.`;
+        tip=tip?`${tip} ${ct}`:ct;
+      }
+    }
+
+    return(
+      <div className="day-card">
+        <div className="day-header" onClick={()=>setOpen(o=>!o)}>
+          <div className="day-num" style={{background:day.color}}>{day.day}</div>
+          <div className="day-header-body">
+            <div className="day-header-left">
+              <div className="day-date-label">{day.label}</div>
+              <div className="day-title">{day.title}</div>
+              <div className="day-location">{day.loc}</div>
+            </div>
+            <div className="day-header-right">
+              {wx
+                ?<div className="day-wx">
+                  {!wx.isAvg&&<div className="day-wx-icon">{wmoEmoji(wx.code)}</div>}
+                  <div className="day-wx-temps" style={{color:wx.isAvg?'var(--muted)':wx.color}}>↑{wx.hi}° ↓{wx.lo}°</div>
+                  {wx.rain!=null&&<div className="day-wx-rain">💧{wx.rain}%{wx.isAvg?' avg':''}</div>}
+                  {wx.isAvg&&<div style={{fontSize:9,color:'#9ca3af',marginTop:1,textAlign:'right'}}>historical avg</div>}
+                </div>
+                :<div className="day-wx"><div className="day-wx-pending">no wx</div></div>
+              }
+              <span className={`day-chevron${open?' open':''}`}>▼</span>
+            </div>
+          </div>
+        </div>
+        {open&&(
+          <div className="day-body">
+            {tip&&<div className="day-tip"><strong>💡 </strong>{tip}</div>}
+            {splitEvents&&(
+              <div className="split-timeline">
+                <div>
+                  <div className="split-col-label">{splitEvents.left.label}</div>
+                  <Timeline events={splitEvents.left.events}/>
+                </div>
+                <div>
+                  <div className="split-col-label">{splitEvents.right.label}</div>
+                  <Timeline events={splitEvents.right.events}/>
+                </div>
+              </div>
+            )}
+            {events&&events.length>0&&(
+              <>
+                {splitEvents&&<div style={{borderTop:'1px solid var(--rule)',margin:'10px 0 12px',paddingTop:2}}><div className="split-col-label" style={{marginBottom:8}}>🤝 Full Group</div></div>}
+                <Timeline events={events}/>
+              </>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  function PackSection({sec,checked,onToggle,filter}){
+    const [open,setOpen]=useState(false);
+    const items=sec.items.filter(it=>{
+      if(filter==='all') return true;
+      if(filter==='required') return it.required;
+      return it.tags?.includes(filter);
+    });
+    if(!items.length)return null;
+    const doneCount=items.filter(it=>checked[`${sec.cat}::${it.name}`]).length;
+    return(
+      <div className="pack-section">
+        <div className="pack-header" onClick={()=>setOpen(o=>!o)}>
+          <div className="pack-header-left">{sec.cat}</div>
+          <div className="pack-header-right">
+            <span className="pack-count">{doneCount}/{items.length}</span>
+            <span className={`pack-chevron${open?' open':''}`}>▼</span>
+          </div>
+        </div>
+        {open&&(
+          <div className="pack-items">
+            {items.map((it,i)=>{
+              const key=`${sec.cat}::${it.name}`;
+              const done=!!checked[key];
+              return(
+                <div className={`pack-item${done?' done':''}`} key={i} onClick={()=>onToggle(key)}>
+                  <div className={`checkbox${done?' checked':''}`}/>
+                  <div className="item-text">
+                    {it.name}
+                    <div className="item-tags">
+                      {it.required&&<span className="tag tag-required">Required</span>}
+                      {it.tags?.includes('beach')&&<span className="tag tag-beach">Beach</span>}
+                      {it.tags?.includes('atv')&&<span className="tag tag-atv">ATV</span>}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  function App(){
+    const [tab,setTab]         = useState('itinerary');
+    const [checked,setChecked] = useState(()=>{ try{return JSON.parse(localStorage.getItem(STORAGE_KEY))||{};}catch{return{};} });
+    const [filter,setFilter]   = useState('all');
+    const [wxCache,setWxCache] = useState({});
+    const [wxLoad,setWxLoad]   = useState(false);
+    const [wxTs,setWxTs]       = useState(null);
+    const [sheetEvents,setSheetEvents] = useState(null);
+    const [syncData,setSyncData]   = useState(()=>{ try{const c=JSON.parse(localStorage.getItem(SYNC_KEY)||'null');return c?.data||null;}catch{return null;} });
+    const [syncTs,setSyncTs]       = useState(()=>{ try{const c=JSON.parse(localStorage.getItem(SYNC_KEY)||'null');return c?.ts||null;}catch{return null;} });
+    const [syncLoad,setSyncLoad]   = useState(false);
+    const [syncErr,setSyncErr]     = useState(null);
+
+    useEffect(()=>{ localStorage.setItem(STORAGE_KEY,JSON.stringify(checked)); },[checked]);
+
+    const loadWeather=useCallback(async(force=false)=>{
+      try{
+        const cached=JSON.parse(localStorage.getItem(WEATHER_KEY)||'null');
+        if(!force&&cached&&Date.now()-cached.ts<WEATHER_TTL){setWxCache(cached.data);setWxTs(cached.ts);return;}
+        setWxLoad(true);
+        const results=await Promise.allSettled(ZONES.map(fetchZone));
+        const data={};
+        results.forEach((r,i)=>{if(r.status==='fulfilled')data[ZONES[i].zone]=r.value;});
+        setWxCache(data);setWxTs(Date.now());
+        localStorage.setItem(WEATHER_KEY,JSON.stringify({ts:Date.now(),data}));
+      }catch(e){console.warn('weather fetch failed',e);}finally{setWxLoad(false);}
+    },[]);
+
+    const loadSheet=useCallback(async()=>{
+      if(!SHEET_ID)return;
+      try{
+        const cached=JSON.parse(localStorage.getItem(SHEET_KEY)||'null');
+        if(cached&&Date.now()-cached.ts<SHEET_TTL){setSheetEvents(cached.data);return;}
+        const data=await fetchSheet();
+        if(data){setSheetEvents(data);localStorage.setItem(SHEET_KEY,JSON.stringify({ts:Date.now(),data}));}
+      }catch(e){console.warn('sheet fetch failed',e);}
+    },[]);
+
+    const loadSync=useCallback(async(force=false)=>{
+      try{
+        const cached=JSON.parse(localStorage.getItem(SYNC_KEY)||'null');
+        if(!force&&cached&&Date.now()-cached.ts<SYNC_TTL){setSyncData(cached.data);setSyncTs(cached.ts);return;}
+        setSyncLoad(true);setSyncErr(null);
+        const data=await fetchAllSheets();
+        setSyncData(data);setSyncTs(Date.now());
+        localStorage.setItem(SYNC_KEY,JSON.stringify({ts:Date.now(),data}));
+      }catch(e){
+        setSyncErr(e.message||'Sync failed — check that the Sheet is set to "Anyone with the link can view"');
+        console.warn('sync failed',e);
+      }finally{setSyncLoad(false);}
+    },[]);
+
+    useEffect(()=>{loadWeather();loadSheet();loadSync();},[]);
+
+    const toggleItem=key=>setChecked(p=>({...p,[key]:!p[key]}));
+    const doneTotal=ALL_KEYS.filter(k=>checked[k]).length;
+    const allTags=[...new Set(SECTIONS.flatMap(s=>s.items.flatMap(i=>i.tags||[])))];
+
+    return(
+      <div>
+        <header className="app-header">
+          <div className="header-title">Clarkes in Sicily</div>
+          <div className="header-dates">Jun 5 – Jun 27, 2025</div>
+          <div className="header-route">Lisbon · Sicily · Madrid</div>
+          <div className="tab-bar">
+            <button className={`tab-btn${tab==='itinerary'?' active':''}`} onClick={()=>setTab('itinerary')}>Itinerary</button>
+            <button className={`tab-btn${tab==='weather'?' active':''}`}   onClick={()=>setTab('weather')}>Weather</button>
+            <button className={`tab-btn${tab==='packing'?' active':''}`}   onClick={()=>setTab('packing')}>Packing</button>
+          </div>
+        </header>
+
+        {tab==='itinerary'&&(
+          <div className="tab-content">
+            <div className="sync-bar">
+              <div className="sl" style={{margin:0,flex:1}}>{DAYS.length} Days · tap ▼ to expand</div>
+              <div style={{display:'flex',alignItems:'center',gap:8}}>
+                {syncTs&&<span className="sync-ts">{syncLoad?'':timeAgo(syncTs)}</span>}
+                <button className="sync-btn" onClick={()=>loadSync(true)} disabled={syncLoad}>
+                  {syncLoad?'Syncing…':'⟳ Sync'}
+                </button>
+              </div>
+            </div>
+            {syncErr&&<div className="sync-err">⚠️ {syncErr}</div>}
+            {DAYS.map(d=>(
+              <DayCard key={d.date+d.day} day={d} wxCache={wxCache} sheetEvents={sheetEvents} syncData={syncData}/>
+            ))}
+            <div className="app-footer">🇵🇹 🇮🇹 🇪🇸 Bon Voyage, Clarkes!</div>
+          </div>
+        )}
+
+        {tab==='weather'&&(
+          <div className="tab-content">
+            <div className="sl">Forecast by region</div>
+            <div className="weather-grid">
+              {ZONES.map(z=>(
+                <WeatherCard key={z.zone} zone={z} data={wxCache[z.zone]} loading={wxLoad}/>
+              ))}
+            </div>
+            <div className="wx-footer">
+              <div className="wx-updated">{wxTs?`Updated ${timeAgo(wxTs)}`:''}</div>
+              <button className="refresh-btn" onClick={()=>loadWeather(true)} disabled={wxLoad}>
+                {wxLoad?'Refreshing…':'Refresh'}
+              </button>
+            </div>
+            <div className="app-footer">Forecasts via open-meteo.com · Free &amp; no API key required</div>
+          </div>
+        )}
+
+        {tab==='packing'&&(
+          <div className="tab-content">
+            <div className="progress-bar-wrap">
+              <div className="progress-top">
+                <span className="progress-title">Packing progress</span>
+                <span className="progress-frac">{doneTotal} / {ALL_KEYS.length}</span>
+              </div>
+              <div className="progress-track"><div className="progress-fill" style={{width:`${ALL_KEYS.length?doneTotal/ALL_KEYS.length*100:0}%`}}/></div>
+            </div>
+            <div className="sl">Filter</div>
+            <div className="filters">
+              {['all','required',...allTags].map(f=>(
+                <button key={f} className={`filter-btn${filter===f?' active':''}`} onClick={()=>setFilter(f)}>
+                  {f==='all'?'All items':f==='atv'?'ATV':f.charAt(0).toUpperCase()+f.slice(1)}
+                </button>
+              ))}
+            </div>
+            <div className="sl">Items</div>
+            {SECTIONS.map(s=>(
+              <PackSection key={s.cat} sec={s} checked={checked} onToggle={toggleItem} filter={filter}/>
+            ))}
+            <div className="app-footer">Saved locally on this device</div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
