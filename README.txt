@@ -45,6 +45,9 @@ Instead of describing each day to Claude one by one, you can plan your whole tri
 
 Make sure the document is set to "Anyone with the link can view" before sharing the link with Claude.
 
+Once Claude has read your itinerary, you can also ask it to fill in the skeleton for every day at once:
+> "The DAYS array only covers the first N days of the trip. Add skeleton day objects for the remaining dates through [end date]. Each entry needs date, day number, label, title, loc, color, and tip. Leave events empty — the Google Sheet integration will populate them automatically."
+
 ---
 
 ## Step 3 — Put it online (free)
