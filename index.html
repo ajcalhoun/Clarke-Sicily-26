@@ -226,7 +226,7 @@
     {
       zone:    "🇪🇸 Madrid",
       start:   "2025-06-26",
-      end:     "2025-06-28",
+      end:     "2025-07-03",
       lat:     40.4168,
       lon:     -3.7038,
       color:   "#b91c1c",
@@ -408,7 +408,7 @@
   /* ══════════════════════════════════════════════════════════════
      ITINERARY — 23 days, Jun 5–27 2025
      Lisbon (Jun 5–15) · Palermo (Jun 16–17) ·
-     Ortigia (Jun 17–21) · Taormina (Jun 22–24) · Madrid (Jun 25–27)
+     Ortigia (Jun 17–21) · Taormina (Jun 22–24) · Madrid (Jun 25–Jul 2)
      ══════════════════════════════════════════════════════════════ */
   const DAYS = [
 
@@ -748,12 +748,67 @@
       date:  "2025-06-27",
       day:   23,
       label: "Saturday, Jun 27",
+      title: "Madrid — Free Day",
+      loc:   "🇪🇸 Madrid, Spain · Central Palace",
+      color: "#b91c1c",
+      events: []
+    },
+
+    // ─── DAY 24 ───────────────────────────────────────────────────
+    {
+      date:  "2025-06-28",
+      day:   24,
+      label: "Sunday, Jun 28",
+      title: "Madrid — Free Day",
+      loc:   "🇪🇸 Madrid, Spain · Central Palace",
+      color: "#b91c1c",
+      events: []
+    },
+
+    // ─── DAY 25 ───────────────────────────────────────────────────
+    {
+      date:  "2025-06-29",
+      day:   25,
+      label: "Monday, Jun 29",
+      title: "Madrid — Free Day",
+      loc:   "🇪🇸 Madrid, Spain · Central Palace",
+      color: "#b91c1c",
+      events: []
+    },
+
+    // ─── DAY 26 ───────────────────────────────────────────────────
+    {
+      date:  "2025-06-30",
+      day:   26,
+      label: "Tuesday, Jun 30",
+      title: "Madrid — Free Day",
+      loc:   "🇪🇸 Madrid, Spain · Central Palace",
+      color: "#b91c1c",
+      events: []
+    },
+
+    // ─── DAY 27 ───────────────────────────────────────────────────
+    {
+      date:  "2025-07-01",
+      day:   27,
+      label: "Wednesday, Jul 1",
+      title: "Madrid — Free Day",
+      loc:   "🇪🇸 Madrid, Spain · Central Palace",
+      color: "#b91c1c",
+      events: []
+    },
+
+    // ─── DAY 28 ───────────────────────────────────────────────────
+    {
+      date:  "2025-07-02",
+      day:   28,
+      label: "Thursday, Jul 2",
       title: "Fly Home to Charlotte",
       loc:   "✈️ Madrid → Charlotte",
       color: "#64748b",
       tip:   "Checkout from Central Palace Madrid by noon. AA749 departs at 1:00 PM and arrives in Charlotte at 4:20 PM.",
       events: [
-        { time: "12:00 PM", text: "Checkout — Central Palace Madrid", note: "Ref: clar_2665149",    type: "key" },
+        { time: "12:00 PM", text: "Checkout — Central Palace Madrid", note: "Ref: clar_2665149",       type: "key" },
         { time: "1:00 PM",  text: "Flight to Charlotte",              note: "AA749 · Arrives 4:20 PM", type: "flight", mapUrl: "https://maps.app.goo.gl/3QmWGroDuLA2sYro9" },
       ]
     },
@@ -814,7 +869,7 @@
       { name: "Melatonin — jet lag" },
     ]},
     { cat: "📋 Documents & Money", items: [
-      { name: "Passport (valid 6+ months past Jun 27)",            required: true },
+      { name: "Passport (valid 6+ months past Jul 2)",             required: true },
       { name: "Flight confirmations — downloaded offline",         required: true },
       { name: "All 6 hotel confirmations",                         required: true },
       { name: "Wedding venue details",                             required: true },
@@ -1077,7 +1132,7 @@
       <div>
         <header className="app-header">
           <div className="header-title">Clarkes in Sicily</div>
-          <div className="header-dates">Jun 5 – Jun 27, 2025</div>
+          <div className="header-dates">Jun 5 – Jul 2, 2025</div>
           <div className="header-route">Lisbon · Sicily · Madrid</div>
           <div className="tab-bar">
             <button className={`tab-btn${tab==='itinerary'?' active':''}`} onClick={()=>setTab('itinerary')}>Itinerary</button>
