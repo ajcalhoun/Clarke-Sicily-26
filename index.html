@@ -182,8 +182,8 @@
   const ZONES = [
     {
       zone:    "🇵🇹 Lisbon",
-      start:   "2025-06-06",
-      end:     "2025-06-16",
+      start:   "2026-06-06",
+      end:     "2026-06-16",
       lat:     38.7169,
       lon:     -9.1395,
       color:   "#1a5276",
@@ -194,8 +194,8 @@
     },
     {
       zone:    "🇮🇹 Palermo",
-      start:   "2025-06-17",
-      end:     "2025-06-18",
+      start:   "2026-06-17",
+      end:     "2026-06-18",
       lat:     38.1157,
       lon:     13.3615,
       color:   "#C85C2E",
@@ -206,8 +206,8 @@
     },
     {
       zone:    "🇮🇹 Ortigia",
-      start:   "2025-06-18",
-      end:     "2025-06-22",
+      start:   "2026-06-18",
+      end:     "2026-06-22",
       lat:     37.0598,
       lon:     15.2938,
       color:   "#0e7490",
@@ -218,8 +218,8 @@
     },
     {
       zone:    "🇮🇹 Taormina",
-      start:   "2025-06-22",
-      end:     "2025-06-26",
+      start:   "2026-06-22",
+      end:     "2026-06-26",
       lat:     37.8516,
       lon:     15.2880,
       color:   "#7c3aed",
@@ -230,8 +230,8 @@
     },
     {
       zone:    "🇪🇸 Madrid",
-      start:   "2025-06-26",
-      end:     "2025-06-28",
+      start:   "2026-06-26",
+      end:     "2026-06-28",
       lat:     40.4168,
       lon:     -3.7038,
       color:   "#b91c1c",
@@ -242,8 +242,8 @@
     },
     {
       zone:    "🇪🇸 Barcelona",
-      start:   "2025-06-28",
-      end:     "2025-07-03",
+      start:   "2026-06-28",
+      end:     "2026-07-03",
       lat:     41.3851,
       lon:     2.1734,
       color:   "#c2410c",
@@ -279,14 +279,14 @@
   const LIVE_SHEET_ID = '1nrFU4v9aPJKIwYjBg5YMMWVU8wxwAxJ-bjLtitfHoAc';
   const SYNC_KEY  = 'clarkes_sync_v1';
   const SYNC_TTL  = 60 * 60 * 1000; // re-fetch after 1 hour
-  const SHEET_YEAR = 2025;
+  const SHEET_YEAR = 2026;
   function parseCSVRows(text){const rows=[];let row=[],f='',q=false;for(let i=0;i<text.length;i++){const c=text[i];if(q){if(c==='"'&&text[i+1]==='"'){f+='"';i++;}else if(c==='"')q=false;else f+=c;}else{if(c==='"')q=true;else if(c===','){row.push(f);f='';}else if(c==='\n'){row.push(f);rows.push(row);row=[];f='';}else if(c!=='\r')f+=c;}}if(f||row.length){row.push(f);rows.push(row);}return rows;}
   function parseSheetCSV(csv){const rows=parseCSVRows(csv);const events={};let currentDate=null;const MNUM={Jan:1,Feb:2,Mar:3,Apr:4,May:5,Jun:6,Jul:7,Aug:8,Sep:9,Oct:10,Nov:11,Dec:12};const CAT_TYPE={Flights:'flight',Food:'food',Sightseeing:'highlight',Entertainment:'highlight',Lodging:'key'};const CHURCH_RX=/abbey|vatican|basilica|cathedral|chapel|prayer/i;const YEAR=new Date().getFullYear();for(const row of rows){const a=(row[0]||'').trim(),b=(row[1]||'').trim(),c=(row[2]||'').trim();const d=(row[3]||'').trim(),cat=(row[14]||'').trim();if(!a||!c||a.includes('Date'))continue;const dayNum=parseInt(b);if(b&&!isNaN(dayNum)&&dayNum>0){const m=a.match(/([A-Z][a-z]{2})\s+(\d+)/);if(m&&MNUM[m[1]]){currentDate=`${YEAR}-${String(MNUM[m[1]]).padStart(2,'0')}-${String(m[2]).padStart(2,'0')}`;if(!events[currentDate])events[currentDate]=[];}}else if(currentDate){if(a==='11:59 PM'&&cat==='Lodging')continue;const type=CHURCH_RX.test(c)?'church':(CAT_TYPE[cat]||'');events[currentDate].push({time:a,text:c,note:d||'',type,group:'all'});}}return events;}
   async function fetchSheet(){if(!SHEET_ID)return null;const res=await fetch(sheetCSVUrl());if(!res.ok)throw new Error('sheet fetch failed');return parseSheetCSV(await res.text());}
 
   /* ── Live sync parsers ── */
 
-  // "Fri, Jun 5" → "2025-06-05"
+  // "Fri, Jun 5" → "2026-06-05"
   function parseSheetDate(str){
     if(!str)return null;
     str=str.trim();
@@ -455,7 +455,7 @@
 
     // ─── DAY 1 ────────────────────────────────────────────────────
     {
-      date:  "2025-06-05",
+      date:  "2026-06-05",
       day:   1,
       label: "Friday, Jun 5",
       title: "Fly to Lisbon",
@@ -471,7 +471,7 @@
 
     // ─── DAY 2 ────────────────────────────────────────────────────
     {
-      date:  "2025-06-06",
+      date:  "2026-06-06",
       day:   2,
       label: "Saturday, Jun 6",
       title: "Arrive in Lisbon",
@@ -486,7 +486,7 @@
 
     // ─── DAY 3 ────────────────────────────────────────────────────
     {
-      date:  "2025-06-07",
+      date:  "2026-06-07",
       day:   3,
       label: "Sunday, Jun 7",
       title: "Sunday Church",
@@ -499,7 +499,7 @@
 
     // ─── DAY 4 ────────────────────────────────────────────────────
     {
-      date:  "2025-06-08",
+      date:  "2026-06-08",
       day:   4,
       label: "Monday, Jun 8",
       title: "Hair, Make-Up & Photos",
@@ -516,7 +516,7 @@
 
     // ─── DAY 5 ────────────────────────────────────────────────────
     {
-      date:  "2025-06-09",
+      date:  "2026-06-09",
       day:   5,
       label: "Tuesday, Jun 9",
       title: "Free Day in Lisbon",
@@ -527,7 +527,7 @@
 
     // ─── DAY 6 ────────────────────────────────────────────────────
     {
-      date:  "2025-06-10",
+      date:  "2026-06-10",
       day:   6,
       label: "Wednesday, Jun 10",
       title: "Free Day in Lisbon",
@@ -538,7 +538,7 @@
 
     // ─── DAY 7 ────────────────────────────────────────────────────
     {
-      date:  "2025-06-11",
+      date:  "2026-06-11",
       day:   7,
       label: "Thursday, Jun 11",
       title: "Guest Arrivals",
@@ -553,7 +553,7 @@
 
     // ─── DAY 8 ────────────────────────────────────────────────────
     {
-      date:  "2025-06-12",
+      date:  "2026-06-12",
       day:   8,
       label: "Friday, Jun 12",
       title: "Celebration with Friends",
@@ -569,7 +569,7 @@
 
     // ─── DAY 9 ────────────────────────────────────────────────────
     {
-      date:  "2025-06-13",
+      date:  "2026-06-13",
       day:   9,
       label: "Saturday, Jun 13",
       title: "Rehearsal & Dinner",
@@ -584,7 +584,7 @@
 
     // ─── DAY 10 — WEDDING DAY ─────────────────────────────────────
     {
-      date:  "2025-06-14",
+      date:  "2026-06-14",
       day:   10,
       label: "Sunday, Jun 14",
       title: "Wedding Day 💍",
@@ -607,7 +607,7 @@
 
     // ─── DAY 11 ───────────────────────────────────────────────────
     {
-      date:  "2025-06-15",
+      date:  "2026-06-15",
       day:   11,
       label: "Monday, Jun 15",
       title: "Guest Departures",
@@ -624,7 +624,7 @@
 
     // ─── DAY 12 ───────────────────────────────────────────────────
     {
-      date:  "2025-06-16",
+      date:  "2026-06-16",
       day:   12,
       label: "Tuesday, Jun 16",
       title: "Fly to Palermo",
@@ -640,7 +640,7 @@
 
     // ─── DAY 13 ───────────────────────────────────────────────────
     {
-      date:  "2025-06-17",
+      date:  "2026-06-17",
       day:   13,
       label: "Wednesday, Jun 17",
       title: "Palermo & On to Ortigia",
@@ -658,7 +658,7 @@
 
     // ─── DAY 14 ───────────────────────────────────────────────────
     {
-      date:  "2025-06-18",
+      date:  "2026-06-18",
       day:   14,
       label: "Thursday, Jun 18",
       title: "Ortigia — The Iliad",
@@ -671,7 +671,7 @@
 
     // ─── DAY 15 ───────────────────────────────────────────────────
     {
-      date:  "2025-06-19",
+      date:  "2026-06-19",
       day:   15,
       label: "Friday, Jun 19",
       title: "Sicily by Car",
@@ -689,7 +689,7 @@
 
     // ─── DAY 16 ───────────────────────────────────────────────────
     {
-      date:  "2025-06-20",
+      date:  "2026-06-20",
       day:   16,
       label: "Saturday, Jun 20",
       title: "Boat Tour",
@@ -703,7 +703,7 @@
 
     // ─── DAY 17 ───────────────────────────────────────────────────
     {
-      date:  "2025-06-21",
+      date:  "2026-06-21",
       day:   17,
       label: "Sunday, Jun 21",
       title: "Free Day in Ortigia",
@@ -714,7 +714,7 @@
 
     // ─── DAY 18 ───────────────────────────────────────────────────
     {
-      date:  "2025-06-22",
+      date:  "2026-06-22",
       day:   18,
       label: "Monday, Jun 22",
       title: "Train to Taormina",
@@ -732,7 +732,7 @@
 
     // ─── DAY 19 ───────────────────────────────────────────────────
     {
-      date:  "2025-06-23",
+      date:  "2026-06-23",
       day:   19,
       label: "Tuesday, Jun 23",
       title: "Alcantara Quad Adventure",
@@ -746,7 +746,7 @@
 
     // ─── DAY 20 ───────────────────────────────────────────────────
     {
-      date:  "2025-06-24",
+      date:  "2026-06-24",
       day:   20,
       label: "Wednesday, Jun 24",
       title: "Free Day in Taormina",
@@ -757,7 +757,7 @@
 
     // ─── DAY 21 ───────────────────────────────────────────────────
     {
-      date:  "2025-06-25",
+      date:  "2026-06-25",
       day:   21,
       label: "Thursday, Jun 25",
       title: "Fly to Madrid",
@@ -774,7 +774,7 @@
 
     // ─── DAY 22 ───────────────────────────────────────────────────
     {
-      date:  "2025-06-26",
+      date:  "2026-06-26",
       day:   22,
       label: "Friday, Jun 26",
       title: "Madrid — Surprise Activity",
@@ -787,7 +787,7 @@
 
     // ─── DAY 23 ───────────────────────────────────────────────────
     {
-      date:  "2025-06-27",
+      date:  "2026-06-27",
       day:   23,
       label: "Saturday, Jun 27",
       title: "Train to Barcelona",
@@ -804,7 +804,7 @@
 
     // ─── DAY 24 ───────────────────────────────────────────────────
     {
-      date:  "2025-06-28",
+      date:  "2026-06-28",
       day:   24,
       label: "Sunday, Jun 28",
       title: "Tibidabo",
@@ -817,7 +817,7 @@
 
     // ─── DAY 25 ───────────────────────────────────────────────────
     {
-      date:  "2025-06-29",
+      date:  "2026-06-29",
       day:   25,
       label: "Monday, Jun 29",
       title: "Sunrise SUP & Jamboree Jam",
@@ -832,7 +832,7 @@
 
     // ─── DAY 26 ───────────────────────────────────────────────────
     {
-      date:  "2025-06-30",
+      date:  "2026-06-30",
       day:   26,
       label: "Tuesday, Jun 30",
       title: "Free Day in Barcelona",
@@ -843,7 +843,7 @@
 
     // ─── DAY 27 ───────────────────────────────────────────────────
     {
-      date:  "2025-07-01",
+      date:  "2026-07-01",
       day:   27,
       label: "Wednesday, Jul 1",
       title: "Park Güell",
@@ -856,7 +856,7 @@
 
     // ─── DAY 28 ───────────────────────────────────────────────────
     {
-      date:  "2025-07-02",
+      date:  "2026-07-02",
       day:   28,
       label: "Thursday, Jul 2",
       title: "Fly Home to Charlotte",
@@ -1221,7 +1221,7 @@
       <div>
         <header className="app-header">
           <div className="header-title">Clarkes in Sicily</div>
-          <div className="header-dates">Jun 5 – Jul 2, 2025</div>
+          <div className="header-dates">Jun 5 – Jul 2, 2026</div>
           <div className="header-route">Lisbon · Sicily · Madrid · Barcelona</div>
           <div className="tab-bar">
             <button className={`tab-btn${tab==='itinerary'?' active':''}`} onClick={()=>setTab('itinerary')}>Itinerary</button>
