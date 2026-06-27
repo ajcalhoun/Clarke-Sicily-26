@@ -170,6 +170,7 @@
 
   const STORAGE_KEY  = 'clarkes_packing_v1';
   const WEATHER_KEY  = 'clarkes_weather_v1';
+  const TODAY        = new Date().toISOString().slice(0,10);
   const WEATHER_TTL  = 6*60*60*1000;
   const OM_BASE      = 'https://api.open-meteo.com/v1/forecast';
 
@@ -1037,8 +1038,10 @@
       }
     }
 
+    const isPast = day.date < TODAY;
+    const isToday = day.date === TODAY;
     return(
-      <div className="day-card">
+      <div className="day-card" id={`day-${day.date}`} style={isPast?{opacity:0.45,filter:'grayscale(25%)'}:isToday?{boxShadow:'0 0 0 2px var(--sand)'}:undefined}>
         <div className="day-header" onClick={()=>setOpen(o=>!o)}>
           <div className="day-num" style={{background:day.color}}>{day.day}</div>
           <div className="day-header-body">
@@ -1192,6 +1195,16 @@
     },[]);
 
     useEffect(()=>{loadWeather();loadSheet();loadSync();},[]);
+
+    useEffect(()=>{
+      if(tab!=='itinerary')return;
+      requestAnimationFrame(()=>{
+        const el=document.getElementById(`day-${TODAY}`);
+        if(!el)return;
+        const hdr=parseInt(getComputedStyle(document.documentElement).getPropertyValue('--hdr'))||148;
+        window.scrollTo({top:el.getBoundingClientRect().top+window.scrollY-hdr-8,behavior:'smooth'});
+      });
+    },[tab]);
 
     const toggleItem=key=>setChecked(p=>({...p,[key]:!p[key]}));
     const doneTotal=ALL_KEYS.filter(k=>checked[k]).length;
