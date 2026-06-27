@@ -1243,12 +1243,6 @@
               </div>
             </div>
             {syncErr&&<div className="sync-err">⚠️ {syncErr}</div>}
-            {!syncErr&&crossIssues.length>0&&(
-              <div className="sync-err" style={{background:'#fffbeb',borderColor:'#f59e0b',color:'#92400e'}}>
-                ⚠️ {crossIssues.filter(i=>i.type==='missing').length>0&&`${crossIssues.filter(i=>i.type==='missing').length} day(s) in sheet not in app: ${crossIssues.filter(i=>i.type==='missing').map(i=>i.date.slice(5)).join(', ')}. `}
-                {crossIssues.filter(i=>i.type==='mismatch').length>0&&`${crossIssues.filter(i=>i.type==='mismatch').length} title mismatch(es): ${crossIssues.filter(i=>i.type==='mismatch').map(i=>`${i.date.slice(5)} (sheet: "${i.sheetTitle}")`).join(', ')}.`}
-              </div>
-            )}
             {DAYS.map(d=>(
               <DayCard key={d.date+d.day} day={d} wxCache={wxCache} syncData={syncData}/>
             ))}
